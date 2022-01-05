@@ -6,9 +6,9 @@ let depNameList = [];
 let depIdList = [];
 let roleNameList = [];
 let empNameList = [];
-let depid;
-let roleid;
-let mangid;
+let department_id;
+let role_id;
+let manager_id;
 
 db.connect(function(err){
     if (err) {
@@ -300,4 +300,118 @@ function mainpage() {
                     mainMenu();
             }
         })
+}
+
+function viewAllRoles() {
+    const sql = `SELECT roles.id, roles.title, departments.name AS department_name, roles.salary
+                FROM roles
+                LEFT JOIN departments
+                ON roles.department_id = departments.id`;
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.log('VIEWING ROLES');
+        console.log('\n');
+        console.table(rows);
+        console.log('\n');
+        mainMenu();
+    })
+}
+
+function viewAllEmployees() {
+    const sql = `SELECT e.id, e.first_name, e.last_name, roles.title AS role, departments.name as department, roles.salary AS salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
+                FROM employees e
+                LEFT JOIN roles
+                ON e.role_id = roles.id
+                LEFT JOIN departments
+                ON roles.department_id = departments.id
+                LEFT JOIN employees m
+                ON m.id = e.manager_id`;
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.log('VIEWING EMPLOYEES');
+        console.log('\n');
+        console.table(rows);
+        console.log('\n');
+        mainMenu();
+    })
+}
+
+function viewEmpsByManager(selectManager) {
+    manager_id = employeeNameList.indexOf(selectedManager) + 1;
+    const sql = `SELECT employees.id, employees.first_name, employees.last_name, departments.name AS department, roles.title 
+                FROM employees 
+                LEFT JOIN roles on roles.id = employees.role_id 
+                LEFT JOIN departments ON departments.id = roles.department_id 
+                WHERE manager_id = ${manager_id}`;
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.log(`VIEWING EMPLOYEES UNDER ${selectedManager}`);
+        console.log('\n');
+        console.table(rows);
+        console.log('\n');
+        mainMenu();
+    })
+}
+
+function viewEmpsByDept(deptName) {
+    dept_id = depNameList.indexOf(deptName) + 1;
+
+    const sql = `SELECT employees.id, employees.first_name, employees.last_name, departments.name AS department, roles.title
+                FROM employees
+                LEFT JOIN roles on roles.id = employees.role_id
+                LEFT JOIN departments ON departments.id = roles.department_id
+                WHERE department_id = ${department_id}`;
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.log(`VIEWING EMPLOYEES IN ${deptName} DEPARTMENT`);
+        console.log('\n');
+        console.table(rows);
+        console.log('\n');
+        mainMenu();
+    })
+}
+
+function addDept(deptName) {
+    const sql = `INSERT INTO departments (name)
+                VALUES ('${deptName}')`;
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.log(`ADDING ${deptName}`);
+        console.log('\n');
+        mainMenu();
+    })
+}
+
+function addRole(title, deptName, salary) {
+    dept_id = depNameList.indexOf(deptName) + 1;
+
+    const sql = `INSERT INTO roles (title, deptartment_id, salary)
+                VALUES ('${title}', ${department_id}, '${salary}')`;
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.log(`ADDING ${title} TO ROLES LIST`);
+        console.log('\n');
+        mainMenu();
+    })
+}
+
+function addEmp(fName, lName, roleName, mang) {
+    role_id = roleNameList.indexOf(roleName) + 1;
+    manager_id = empNameList.indexOf(mang) + 1;
+
+    const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id)
+                VALUES ('${fName}', '${lName}', ${role_id}, ${manager_id})`;
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.log(`ADDING ${fName} ${lName} TO EMPLOYEES`);
+        console.log('\n');
+        mainMenu();
+    })
 }
