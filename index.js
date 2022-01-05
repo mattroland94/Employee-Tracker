@@ -113,11 +113,191 @@ function mainpage() {
                     break;
                 case 'Add role':
                     inquirer
-                    .prompt(
+                    .prompt([
                         {
-                            ca
+                            type: 'input',
+                            name: 'roleName',
+                            message: 'What is the name of the role?',
+                            validate: nameIn => {
+                                if (nameIn) {
+                                    return true;
+                                }
+                                else {
+                                    console.log('Enter role');
+                                }
+                            }
+                        },
+                        {
+                            type: 'input',
+                            name: 'roleSalary',
+                            message: 'What is the Salary?',
+                            validate: nameIn => {
+                                if (nameIn) {
+                                    return true;
+                                }
+                                else {
+                                    console.log('Enter Salary');
+                                }
+                            }
+                        },
+                        {
+                            type: 'list',
+                            name: 'roleDept',
+                            message: 'What Dept. is this role?',
+                            choices: depNameList
                         }
-                    )
+                    ])
+                    .then(answer => {
+                        let title = answer.roleName;
+                        let salary = answer.roleSalary;
+                        let deptName = answer.roleDept;
+                        addRole(title, deptName, salary);
+                    });
+                    break;
+                case 'Add an employee':
+                    inquirer
+                    .prompt([
+                        {
+                            type: 'input',
+                            name: 'fName',
+                            message: 'Employees first name?',
+                            validate: nameIn => {
+                                if (nameIn) {
+                                    return true;
+                                }
+                                else {
+                                    console.log('Enter employees fname');
+                                }
+                            }
+                        },
+                        {
+                            type: 'input',
+                            name: 'lName',
+                            message: 'Employees last name?',
+                            validate: nameIn => {
+                                if (nameIn) {
+                                    return true;
+                                }
+                                else {
+                                    console.log('Enter employeese lname');
+                                }
+                            }
+                        },
+                        {
+                            type: 'list',
+                            name: 'empRole',
+                            message: 'Employee Role?',
+                            choices: roleNameList
+                        },
+                        {
+                            type: 'list',
+                            name: 'givenManager',
+                            message: 'Employees manager?',
+                            chocies: empNameList
+                        }
+                    ])
+                    .then(answer => {
+                        let firstn = answer.fName;
+                        let lastn = answer.lName;
+                        let rolen = answer.empRole;
+                        let mang = answer.givenManager;
+                        addEmployee(firstn, lastn, rolen, mang);
+                    })
+                    break;
+                case 'Employee role update':
+                    inquirer
+                    .prompt([
+                        {
+                            type: 'list',
+                            name: 'empRoleUpdate',
+                            message: 'Employee to update role?',
+                            choices: empNameList
+                        },
+                        {
+                            type: 'list',
+                            name: 'nRole',
+                            message: 'Employees new role?',
+                            choices: roleNameList
+                        }
+                    ])
+                    .then(answer => {
+                        let eName = answer.empRoleUpdate;
+                        let eRole = answer.nRole;
+                        updateEployeeRole(eName, eRole);
+                    })
+                    break;
+                case 'Update employee manager':
+                    inquirer
+                    .prompt([
+                        {
+                            type: 'list',
+                            name: 'empName',
+                            message: 'What employees manager do you want to update?',
+                            choices: empNameList
+                        },
+                        {
+                            type: 'list',
+                            name: 'mangName',
+                            message: 'Name of employees new manager?',
+                            choices: empNameList
+                        }
+                    ])
+                    .then(answer => {
+                        let employName = answer.empName;
+                        let manageName = answer.mangName;
+                        updateEmployeeManagers(employName, manageName);
+                    })
+                    break;
+                case 'Delete Dept':
+                    inquirer
+                    .prompt([
+                        {
+                            type: 'list',
+                            name: 'deleteDept',
+                            message: 'Department to delete?',
+                            choices: depNameList
+                        }
+                    ])
+                    .then(answer => {
+                        let deptDelete = answer.deleteDept;
+                        deleteDepartment(deptDelete);
+                    })
+                    break;
+                case 'Delete role':
+                    inquirer
+                    .prompt([
+                        {
+                            type: 'list',
+                            name: 'deleteRole',
+                            message: 'What role are you going to delete?',
+                            choices: roleNameList
+                        }
+                    ])
+                    .then(answer => {
+                        let roleDelete = answer.deleteRole;
+                        deleteRoles(roleDelete);
+                    })
+                    break;
+                case 'Delete employees':
+                    inquirer
+                    .prompt([
+                        {
+                            type: 'list',
+                            name: 'deleteEmployee',
+                            message: 'What employee do you want to delete?',
+                            choices: empNameList
+                        }
+                    ])
+                    .then(answer => {
+                        let empDelete = answer.deleteEmployee;
+                        deleteEmployees(empDelete);
+                    })
+                    break;
+                case 'Exit':
+                    db.destroy();
+                    process.exit(0);
+                default:
+                    mainMenu();
             }
         })
 }
