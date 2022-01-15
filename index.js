@@ -2,8 +2,8 @@ const db = require('./db/connection');
 const inquirer = require('inquirer');
 const conTable = require('console.table');
 
-let depNameList = [];
-let depIdList = [];
+let deptNameList = [];
+let deptIdList = [];
 let roleNameList = [];
 let empNameList = [];
 let department_id;
@@ -20,9 +20,9 @@ db.connect(function(err){
 })
 
 function mainpage() {
-    updateDepList();
-    updateRoleList();
-    updateEmpList();
+    updateDeptLists();
+    updateRoleLists();
+    updateEmpLists();
 
     inquirer
         .prompt(
@@ -51,13 +51,13 @@ function mainpage() {
             console.clear();
             switch(answer.choice){
                 case 'View departments':
-                    viewADepartments();
+                    viewAllDepts();
                     break;
                 case 'View roles':
-                    viewARoles();
+                    viewAllRoles();
                     break;
                 case 'View employees':
-                    viewAEmployees();
+                    viewAllEmps();
                     break;
                 case 'View employees by management':
                     inquirer
@@ -71,7 +71,7 @@ function mainpage() {
                     ])
                     .then(answer => {
                         let manSelect = answer.selectDepartment;
-                        viewEmpByMan(manSelect);
+                        viewEmpsByManager(manSelect);
                     })
                     break;
                 case 'View employees by Dept.':
@@ -80,13 +80,13 @@ function mainpage() {
                         {
                             type: 'list',
                             name: 'selectDepartment',
-                            message: "What deparment's employees would you like to see?",
+                            message: "What department's employees would you like to see?",
                             choices: empNameList
                         }
                     ])
                     .then(answer => {
                         let manSelect = answer.selectDepartment;
-                        viewEmpByMan(manSelect);
+                        viewEmpsByDept(manSelect);
                     })
                     break;
                 case 'Add dept':
@@ -108,7 +108,7 @@ function mainpage() {
                     )
                     .then(answer => {
                         let depName = answer.deptName;
-                        addDep(depName);
+                        addDept(depName);
                     });
                     break;
                 case 'Add role':
@@ -144,7 +144,7 @@ function mainpage() {
                             type: 'list',
                             name: 'roleDept',
                             message: 'What Dept. is this role?',
-                            choices: depNameList
+                            choices: deptNameList
                         }
                     ])
                     .then(answer => {
@@ -201,7 +201,7 @@ function mainpage() {
                         let lastn = answer.lName;
                         let rolen = answer.empRole;
                         let mang = answer.givenManager;
-                        addEmployee(firstn, lastn, rolen, mang);
+                        addEmp(firstn, lastn, rolen, mang);
                     })
                     break;
                 case 'Employee role update':
@@ -223,7 +223,7 @@ function mainpage() {
                     .then(answer => {
                         let eName = answer.empRoleUpdate;
                         let eRole = answer.nRole;
-                        updateEployeeRole(eName, eRole);
+                        updateEmpRole(eName, eRole);
                     })
                     break;
                 case 'Update employee manager':
@@ -245,7 +245,7 @@ function mainpage() {
                     .then(answer => {
                         let employName = answer.empName;
                         let manageName = answer.mangName;
-                        updateEmployeeManagers(employName, manageName);
+                        updateEmpManagers(employName, manageName);
                     })
                     break;
                 case 'Delete Dept':
@@ -255,7 +255,7 @@ function mainpage() {
                             type: 'list',
                             name: 'deleteDept',
                             message: 'Department to delete?',
-                            choices: depNameList
+                            choices: deptNameList
                         }
                     ])
                     .then(answer => {
@@ -290,7 +290,7 @@ function mainpage() {
                     ])
                     .then(answer => {
                         let empDelete = answer.deleteEmployee;
-                        deleteEmployees(empDelete);
+                        deleteEmps(empDelete);
                     })
                     break;
                 case 'Exit':
@@ -301,7 +301,18 @@ function mainpage() {
             }
         })
 }
-
+function viewAllDepts() {
+    const sql = `SELECT * FROM departments`;
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.log(`VIEWING DEPARTMENTS`);
+        console.log('\n');
+        console.log(rows);
+        console.log('\n');
+        mainMenu();
+    })
+}
 function viewAllRoles() {
     const sql = `SELECT roles.id, roles.title, departments.name AS department_name, roles.salary
                 FROM roles
@@ -318,7 +329,7 @@ function viewAllRoles() {
     })
 }
 
-function viewAllEmployees() {
+function viewAllEmps() {
     const sql = `SELECT e.id, e.first_name, e.last_name, roles.title AS role, departments.name as department, roles.salary AS salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
                 FROM employees e
                 LEFT JOIN roles
@@ -357,7 +368,7 @@ function viewEmpsByManager(selectManager) {
 }
 
 function viewEmpsByDept(deptName) {
-    dept_id = depNameList.indexOf(deptName) + 1;
+    dept_id = deptNameList.indexOf(deptName) + 1;
 
     const sql = `SELECT employees.id, employees.first_name, employees.last_name, departments.name AS department, roles.title
                 FROM employees
@@ -388,7 +399,7 @@ function addDept(deptName) {
 }
 
 function addRole(title, deptName, salary) {
-    dept_id = depNameList.indexOf(deptName) + 1;
+    dept_id = deptNameList.indexOf(deptName) + 1;
 
     const sql = `INSERT INTO roles (title, deptartment_id, salary)
                 VALUES ('${title}', ${department_id}, '${salary}')`;
@@ -413,5 +424,105 @@ function addEmp(fName, lName, roleName, mang) {
         console.log(`ADDING ${fName} ${lName} TO EMPLOYEES`);
         console.log('\n');
         mainMenu();
+    })
+}
+function updateEmpRole(empName, empRole) {
+    employee_id = employeeNameList.indexOf(empName) + 1;
+    role_id = roleNameList.indexOf(empRole) + 1;
+
+    const sql = `UPDATE employees
+                SET role_id = ${role_id}
+                WHERE employees.id = ${employee_id}`;
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.log(`UPDATING ${empName}'s ROLE TO ${empRole}`);
+        console.log('\n');
+        mainMenu();
+    })
+}
+function updateEmpManagers(empName, managerName) {
+    employee_id = empNameList.indexOf(empName) + 1;
+    manager_id = empNameList.indexOf(managerName);
+
+    const sql = `UPDATE employees
+                SET manager_id = ${manager_id}
+                WHERE employees.id = ${employee_id}`;
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.log(`UPDATE ${empName}'s MANAGER TO ${managerName}`);
+        console.log('\n');
+        mainMenu();
+    })
+}
+function deleteRoles(roleDelete) {
+    role_id = roleNameList.indexOf(roleDelete) + 1;
+
+    const sql = `DELETE FROM roles
+                WHERE roles.id = ${role_id}`;
+    
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.log(`DELETING ROLE ${roleDelete}`);
+        console.log('\n');
+        mainMenu();
+    })
+}
+function deleteEmps(empDelete) {
+    employee_id = empNameList.indexOf(empDelete) + 1;
+    
+    const sql = `DELETE FROM employees
+                WHERE employees.id = ${employee_id}`;
+    
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.log(`DELETING EMPLOYEE ${empDelete}`);
+        console.log('\n');
+        mainMenu();
+    })
+}
+function updateDeptLists() {
+    const sql = `SELECT * FROM departments`;
+
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        deptNameList.length = 0;
+        deptIdList.length = 0;
+        for (let i = 0; i < rows.length; i++) {
+            let {id, name} = rows[i];
+            let actual_id = id;
+            let actual_name = name;
+            deptNameList.push(actual_name);
+            deptNameList.push(actual_id);
+        }
+    })
+}
+function updateRoleLists() {
+    const sql = `SELECT * FROM roles`;
+
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        roleNameList.length = 0;
+        for (let i = 0; i < rows.length; i++) {
+            let {title} = rows[i];
+            let actual_role = title;
+            roleNameList.push(actual_role);
+        }
+    })
+}
+function updateEmpLists() {
+    const sql = `SELECT * FROM employees`;
+
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        empNameList.length = 0;
+        for (let i = 0; i < rows.length; i++) {
+            let {first_name, last_name} = rows[i];
+            let actual_full_name = `${first_name} ${last_name}`;
+            empNameList.push(actual_full_name);
+        }
     })
 }
