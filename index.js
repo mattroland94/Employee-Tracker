@@ -16,10 +16,10 @@ db.connect(function(err){
     }
     console.log('db connected')
     console.log('Welcome to the Employee Tracker')
-    mainpage();
+    mainMenu();
 })
 
-function mainpage() {
+function mainMenu() {
     updateDeptLists();
     updateRoleLists();
     updateEmpLists();
