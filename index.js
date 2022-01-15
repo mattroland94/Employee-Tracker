@@ -70,7 +70,7 @@ function mainMenu() {
                         }
                     ])
                     .then(answer => {
-                        let manSelect = answer.selectDepartment;
+                        let manSelect = answer.selectManager;
                         viewEmpsByManager(manSelect);
                     })
                     break;
@@ -350,7 +350,7 @@ function viewAllEmps() {
 }
 
 function viewEmpsByManager(selectManager) {
-    manager_id = employeeNameList.indexOf(selectedManager) + 1;
+    manager_id = empNameList.indexOf(selectManager) + 1;
     const sql = `SELECT employees.id, employees.first_name, employees.last_name, departments.name AS department, roles.title 
                 FROM employees 
                 LEFT JOIN roles on roles.id = employees.role_id 
@@ -359,7 +359,7 @@ function viewEmpsByManager(selectManager) {
     db.query(sql, (err, rows) => {
         if (err) throw err;
         console.log('\n');
-        console.log(`VIEWING EMPLOYEES UNDER ${selectedManager}`);
+        console.log(`VIEWING EMPLOYEES UNDER ${selectManager}`);
         console.log('\n');
         console.table(rows);
         console.log('\n');
@@ -368,7 +368,7 @@ function viewEmpsByManager(selectManager) {
 }
 
 function viewEmpsByDept(deptName) {
-    dept_id = deptNameList.indexOf(deptName) + 1;
+    department_id = deptNameList.indexOf(deptName) + 1;
 
     const sql = `SELECT employees.id, employees.first_name, employees.last_name, departments.name AS department, roles.title
                 FROM employees
