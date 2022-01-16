@@ -260,7 +260,7 @@ function mainMenu() {
                     ])
                     .then(answer => {
                         let deptDelete = answer.deleteDept;
-                        deleteDepartment(deptDelete);
+                        deleteDept(deptDelete);
                     })
                     break;
                 case 'Delete role':
@@ -452,6 +452,20 @@ function updateEmpManagers(empName, managerName) {
         if (err) throw err;
         console.log('\n');
         console.log(`UPDATE ${empName}'s MANAGER TO ${managerName}`);
+        console.log('\n');
+        mainMenu();
+    })
+}
+function deleteDept(deptDelete) {
+    department_id = deptNameList.indexOf(deptDelete) + 1;
+
+    const sql = `DELETE FROM departments
+                WHERE departments.id = ${department_id}`;
+
+    db.query(sql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.log(`DEPARTMENT ${deptDelete} DELETED`);
         console.log('\n');
         mainMenu();
     })
