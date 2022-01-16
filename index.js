@@ -154,7 +154,7 @@ function mainMenu() {
                         addRole(title, deptName, salary);
                     });
                     break;
-                case 'Add an employee':
+                case 'Add employee':
                     inquirer
                     .prompt([
                         {
@@ -193,18 +193,18 @@ function mainMenu() {
                             type: 'list',
                             name: 'givenManager',
                             message: 'Employees manager?',
-                            chocies: empNameList
+                            choices: empNameList
                         }
                     ])
                     .then(answer => {
-                        let firstn = answer.fName;
-                        let lastn = answer.lName;
-                        let rolen = answer.empRole;
-                        let mang = answer.givenManager;
-                        addEmp(firstn, lastn, rolen, mang);
+                        let first_name = answer.fName;
+                        let last_name = answer.lName;
+                        let roleName = answer.empRole;
+                        let manager = answer.givenManager;
+                        addEmp(first_name, last_name, roleName, manager);
                     })
                     break;
-                case 'Employee role update':
+                case 'Update employee role':
                     inquirer
                     .prompt([
                         {
@@ -399,9 +399,9 @@ function addDept(deptName) {
 }
 
 function addRole(title, deptName, salary) {
-    dept_id = deptNameList.indexOf(deptName) + 1;
+    department_id = deptNameList.indexOf(deptName) + 1;
 
-    const sql = `INSERT INTO roles (title, deptartment_id, salary)
+    const sql = `INSERT INTO roles (title, department_id, salary)
                 VALUES ('${title}', ${department_id}, '${salary}')`;
     db.query(sql, (err, rows) => {
         if (err) throw err;
@@ -427,7 +427,7 @@ function addEmp(fName, lName, roleName, mang) {
     })
 }
 function updateEmpRole(empName, empRole) {
-    employee_id = employeeNameList.indexOf(empName) + 1;
+    employee_id = empNameList.indexOf(empName) + 1;
     role_id = roleNameList.indexOf(empRole) + 1;
 
     const sql = `UPDATE employees
@@ -496,7 +496,7 @@ function updateDeptLists() {
             let actual_id = id;
             let actual_name = name;
             deptNameList.push(actual_name);
-            deptNameList.push(actual_id);
+            deptIdList.push(actual_id);
         }
     })
 }
